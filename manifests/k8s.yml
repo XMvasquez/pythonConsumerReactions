@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka-consumer-reactions
+  name: pythonconsumerreactions
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka-consumer.reactions
+      app: pythonconsumerreactions
   template:
     metadata:
       labels:
-        app: kafka-consumer-reactions
+        app: pythonconsumerreactions
     spec:
       containers:
-      - image: docker.io/btoarriola/kafka-consumer-reactions:{github.sha}
-        name: kafka-consumer-reactions
+      - image: docker.io/xmnvasquez/pythonconsumerreactions:{github.sha}
+        name: pythonconsumerreactions
 #        envFrom:
 #        - configMapRef:
 #            name: adsoftsito-config
@@ -29,14 +29,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka-consumer-reactions
+  name: pythonconsumerreactions
   annotations:
     dev.okteto.com/auto-ingress: "true"
 spec:
   type: ClusterIP  
   ports:
-  - name: "kafka-consumer-reactions"
+  - name: "pythonconsumerreactions"
     port: 8081
   selector:
-    app: kafka-consumer-reactions
+    app: pythonconsumerreactions
 
