@@ -32,18 +32,48 @@ try:
 except:
     print("Could not connect to MongoDB Aquiii")
 
-consumer = KafkaConsumer('test',bootstrap_servers=['my-kafka-0.my-kafka-headless.xmvasquez.svc.cluster.local:9092'])
+consumer = KafkaConsumer('reactions',bootstrap_servers=['my-kafka-0.my-kafka-headless.xmvasquez.svc.cluster.local:9092'])
 # Parse received data from Kafka
 for msg in consumer:
     record = json.loads(msg.value)
     print(record)
-    name = record['name']
+    userid = record['userid']
+    objectid = record['objectid']
+    reactionid = record['reactionid']
+    print("hola :)")
+
 
     # Create dictionary and ingest data into MongoDB
     try:
-       tkdapp_rec = {'name':name }
-       print (tkdapp_rec)
-       tkdapp_id = db.tkdapp_info.insert_one(tkdapp_rec)
-       print("Data inserted with record ids", tkdapp_id)
-    except:
-       print("Could not insert into MongoDB")
+        libros_rec = {'userid': userid, 'objectid': objectid, 'reactionid': reactionid}
+        print(libros_rec)
+        libros_id = db.tlibros_reactions.insert_one(libros_rec)
+        print("Data inserted with record ids", libros_id)
+
+        subprocess.call(['sh', './test.sh'])
+    except Exception as e:
+        print("Could not insert into MongoDB")
+        print(e)
+    # Create bdnosql_sumary and insert groups into mongodb
+    try:
+        agg_result = db.libros_reactions.aggregate([
+        {
+            "$group": {
+                "_id": {
+                    'objectid': '$objectid',
+                    'reactionid': '$reactionid'
+                },
+                "n": {"$sum": 1}
+            }
+        }
+    ])
+        db.libros_reactions_sumary.delete_many({})
+        for i in agg_result:
+            print(i)
+            sumary_id = db.libros_reactions_sumary.insert_one(i)
+            print("Sumary Reactions inserted with record ids: ", sumary_id)
+            
+    except Exception as e:
+        print(f'group vy cought {type(e)}: ')
+        print(e)
+        
