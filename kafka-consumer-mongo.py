@@ -45,18 +45,17 @@ for msg in consumer:
 
     # Create dictionary and ingest data into MongoDB
     try:
-        libros_rec = {'userid': userid, 'objectid': objectid, 'reactionid': reactionid}
-        print(libros_rec)
-        libros_id = db.tlibros_reactions.insert_one(libros_rec)
-        print("Data inserted with record ids", libros_id)
+        tkdapp_rec = {'userid': userid, 'objectid': objectid, 'reactionid': reactionid}
+        print(tkdapp_rec)
+        tkdapp_id = db.tkdapp_reactions.insert_one(tkdapp_rec)
+        print("Data inserted with record ids", tkdapp_id)
 
-        subprocess.call(['sh', './test.sh'])
     except Exception as e:
         print("Could not insert into MongoDB")
         print(e)
     # Create bdnosql_sumary and insert groups into mongodb
     try:
-        agg_result = db.libros_reactions.aggregate([
+        agg_result = db.tkdapp_reactions.aggregate([
         {
             "$group": {
                 "_id": {
@@ -67,13 +66,12 @@ for msg in consumer:
             }
         }
     ])
-        db.libros_reactions_sumary.delete_many({})
+        db.tkdapp_reactions_sumary.delete_many({})
         for i in agg_result:
             print(i)
-            sumary_id = db.libros_reactions_sumary.insert_one(i)
+            sumary_id = db.tkdapp_reactions_sumary.insert_one(i)
             print("Sumary Reactions inserted with record ids: ", sumary_id)
             
     except Exception as e:
         print(f'group vy cought {type(e)}: ')
         print(e)
-        
